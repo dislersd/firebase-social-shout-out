@@ -18,11 +18,11 @@ firebase.initializeApp(config);
 
 const db = admin.firestore();
 
-app.get("/shouts", (req, res) => {
-  db.collection("shouts")
+app.get("/shouts", async (req, res) => {
+  try {
+    const data = await db.collection("shouts")
     .orderBy("createdAt", "desc")
     .get()
-    .then(data => {
       let shouts = [];
       data.forEach(doc => {
         shouts.push({
@@ -33,8 +33,10 @@ app.get("/shouts", (req, res) => {
         });
       });
       return res.json(shouts);
-    })
-    .catch(err => console.error(err));
+  } catch (err) {
+    res.status(500).json({ error: err.code })
+  }
+
 });
 
 app.post("/shout", (req, res) => {
