@@ -4,14 +4,7 @@ const app = require("express")();
 
 admin.initializeApp();
 
-var config = {
-  apiKey: "AIzaSyD3RCWIpkLGwT8IIWwUluk4WmalJOE_waw",
-  authDomain: "social-shout-out.firebaseapp.com",
-  databaseURL: "https://social-shout-out.firebaseio.com",
-  projectId: "social-shout-out",
-  storageBucket: "social-shout-out.appspot.com",
-  messagingSenderId: "510630727787"
-};
+const config = require('./config.js')
 
 const firebase = require("firebase");
 firebase.initializeApp(config);
@@ -67,6 +60,7 @@ app.post("/signup", (req, res) => {
   };
 
   //TODO: Validate Data
+  let token, userId;
   db.doc(`/users/${newUser.handle}`)
     .get()
     .then(doc => {
@@ -79,14 +73,29 @@ app.post("/signup", (req, res) => {
       }
     })
     .then(data => {
+      userId = data.user.uid;
       return data.user.getIdToken();
     })
-    .then(token => {
+    .then(idToken => {
+      token = idToken;
+      const userCredentials = {
+        handle: newUser.handle,
+        email: newUser.email,
+        createdAt: new Date().toISOString(),
+        userId 
+      };
+      db.doc(`/users/${newUser.handle}`).set(userCredentials);
+    })
+    .then(() => {
       return res.status(201).json({ token });
     })
     .catch(err => {
       console.error(err);
-      return res.status(500).json({ error: err.code })
+      if (err.code === 'auth/email-already-in-use') {
+        return res.status(400).json({ email: 'Email is already in use' });
+      } else {
+        return res.status(500).json({ error: err.code });
+      }
     })
 });
 
