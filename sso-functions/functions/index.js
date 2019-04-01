@@ -49,6 +49,10 @@ app.post("/shout", async (req, res) => {
   }
 });
 
+const isEmpty = (string) => {
+  string.trim() === '' ? true : false;
+}
+
 // sign up route
 app.post("/signup", (req, res) => {
   const newUser = {
