@@ -51,15 +51,15 @@ app.post("/shout", async (req, res) => {
 
 const isEmail = email => {
   const regEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  // if(email.match(regEx)) return true;
-  // else return false;
-  email.match(regEx) ? true : false;
+  if (email.match(regEx)) return true;
+  else return false;
+  // email.match(regEx) ? true : false; - ternary not working. Why?
 };
 
 const isEmpty = string => {
-  // if (string.trim() === "") return true;
-  // else return false;
-  string.trim() === "" ? true : false;
+  if (string.trim() === "") return true;
+  else return false;
+  // string.trim() === "" ? true : false;  - ternary not working. Why?
 };
 
 // sign up route
