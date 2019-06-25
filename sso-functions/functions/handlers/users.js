@@ -1,9 +1,11 @@
 const { db } = require("../util/admin");
 
-const config = require("../config");
+const config = require("../util/config");
 
 const firebase = require("firebase");
 firebase.initializeApp(config);
+
+const { validateSignupData, validateLoginData } = require('../util/validaters');
 
 exports.signUp = (req, res) => {
   const newUser = {
@@ -13,20 +15,8 @@ exports.signUp = (req, res) => {
     handle: req.body.handle
   };
 
-  let errors = {};
-
-  if (isEmpty(newUser.email)) {
-    errors.email = "Must not be empty";
-  } else if (!isEmail(newUser.email)) {
-    errors.email = "Must be a valid email address";
-  }
-
-  if (isEmpty(newUser.password)) errors.password = "Must not be empty";
-  if (newUser.password !== newUser.confirmedPassword)
-    errors.confirmedPassword = "Passwords must match";
-  if (isEmpty(newUser.handle)) errors.handle = "Must not be empty";
-
-  if (Object.keys(errors).length > 0) return res.status(400).json(errors);
+  const { valid, errors } = validateSignupData(newUser);
+  if(!valid) return res.status(400).json(errors);
 
   // VALIDATING DATA
   let token, userId;
@@ -74,12 +64,9 @@ exports.login = (req, res) => {
     password: req.body.password
   };
 
-  let errors = {};
+  const { valid, errors } = validateLoginData(user);
 
-  if (isEmpty(user.email)) errors.email = "Must not be empty";
-  if (isEmpty(user.password)) errors.password = "Must not be empty";
-
-  if (Object.keys(errors).length > 0) return res.status(400).json(errors);
+  if(!valid) return res.status(400).json(errors);
 
   firebase
     .auth()
